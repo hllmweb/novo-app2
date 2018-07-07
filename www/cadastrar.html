@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *" />
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com; style-src 'self' 'unsafe-inline'; media-src *" /> -->
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <title>Cadastrar Usuário</title>
+</head>
+<body>
+    <h2>Cadastrar</h2>
+    <form id="formCadastrar">
+        <input id="nome"  type="text" required placeholder="Seu Nome"><br><br>
+        <input id="email" type="email" required placeholder="E-Mail" /><br><br>
+        <input id="senha" type="password" required placeholder="Senha" /><br><br>
+        <button>Cadastrar</button>
+        <a href="index.html">Inicio</a>
+    </form>  
+    <script src="cordova.js"></script>
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/index.js"></script>
+    <script>
+        app.initialize();
+       
+        $("#formCadastrar").submit(function(e){
+            e.preventDefault();
+
+            var nome    = $("#nome").val();
+            var email   = $("#email").val();
+            var senha   = $("#senha").val();
+
+            if($.trim(nome).length>0 & $.trim(email).length>0 & $.trim(senha).length>0){
+                $.ajax({
+                    type: "POST",
+                    url: "http://www.hugomesquita.com.br/remote/op_cadastrar.php",
+                    data: {
+                        nome: nome,
+                        email: email,
+                        senha: senha,
+                    },
+                    crossDomain: true,
+                    cache: false,
+                    beforeSend: function(){ $("button").html('Cadastrando...');},
+                }).done(function(data){
+                    if(data == "success"){
+                        alert("Usuário cadastrado com sucesso");
+                        window.location.href = "index.html";
+                    }else if(data == "exist"){
+                        alert("Usuário já é cadastrado no sistema");
+                        $("button").html("Cadastrar");
+                    }else if(data == "error"){
+                        alert("Erro ao efetuar o cadastro do usuário");
+                        $("button").html("Cadastrar");
+                    }
+
+                });
+            }
+
+
+        });
+	</script>	
+</body>
+</html>

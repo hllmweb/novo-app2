@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *" />
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com; style-src 'self' 'unsafe-inline'; media-src *" /> -->
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <title>Acesso Liberado</title>
+    <style>
+    #lista li{
+        background: #FFF;
+        list-style: none;
+        cursor: pointer;
+    }
+    #lista a{color:#000; text-decoration: none; font-weight: bold; margin:5px 0; display: block;}
+    </style>
+</head>
+<body>
+Olá <div id="nome"></div>
+    <a id="logout" class="button button-clear" href="#">Sair</a>
+    <div id="lista"></div>
+
+
+
+    <script src="cordova.js"></script>
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/index.js"></script>
+    <script>
+        app.initialize();
+
+        //resgatando valores armazenado no navegaador
+        var acesso = window.localStorage.getItem('acesso');
+        if(acesso != 'false'){
+            var nome  = window.localStorage.getItem('nome');
+            var email = window.localStorage.getItem('email');
+            //console.log(email);   
+            $('#nome').html(nome);
+        }else{
+            window.location.href = "index.html";
+        }
+
+        //limpando valores do servidor
+        $("#logout").click(function(){
+		    //localStorage.login="false";
+		    window.localStorage.setItem('acesso','false');
+            window.localStorage.removeItem('email');
+            window.localStorage.removeItem('senha');
+            window.location.href = "index.html";
+            /*window.localStorage.clear();
+            location.reload();
+            window.location.href = "index.html";*/
+            return false;
+		});
+
+
+
+        //listando todos os usuários
+        $.getJSON("http://www.hugomesquita.com.br/remote/op_listar.php", function(result){
+            $.each(result, function(i, valor){
+                var id      = valor.id;
+                var nome    = valor.nome;
+                var email   = valor.email;
+                var senha   = valor.senha;
+                $("#lista").append("<li><a href='form.html?id="+id+"&nome="+nome+"&email="+email+"&senha="+senha+"'>"+nome+"<p>"+email+"</p></a></li>");
+
+            });
+        });
+
+	</script>	
+</body>
+</html>

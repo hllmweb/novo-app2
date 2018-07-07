@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *" />
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com; style-src 'self' 'unsafe-inline'; media-src *" /> -->
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <title>Acesso Restrito</title>
+</head>
+
+<body>
+    <h1>Acesso restrito</h1>
+    <form id="formLogin">
+        <input id="email" type="email" required placeholder="E-Mail" />
+        <input id="senha" type="password" required placeholder="Senha" />
+        <button>Login</button>
+    </form>  
+    <div id="text"></div>
+    <div id="regid"></div>
+    <a href="cadastrar.html">Cadastrar</a>
+    <script src="cordova.js"></script>
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="PushNotification.js"></script>
+    <script src="js/index.js"></script>
+    <script>
+        app.initialize();
+       
+        //fazer verificação se o usuário já inicio a sessao, verificando se ele estar logado utilizando localstorage
+        //http://blog.thiagobelem.net/armazenando-informacoes-no-computador-do-visitante-com-localstorage-e-sessionstorage
+      
+        if(localStorage.getItem(localStorage.key(0)) == 'true'){
+          window.location.href = "login.html";
+        }
+      
+        $("#formLogin").submit(function(e){
+            e.preventDefault();
+            var email = $("#email").val();
+            var senha = $("#senha").val();
+
+
+            //verificando se o campo email e senha estar vazio
+            if(email == ""){
+                alert("Preencha o campo E-Mail!");
+                $("#email").keyup(function() {
+                    $("#email").css("border","2px solid #0fad0f");
+                });
+                     
+                $("#email").css("border","2px solid #f21d1d");
+            }else if(senha == ""){
+                alert("Preencha o campo Senha!");
+                $("#senha").keyup(function() {
+                    $("#senha").css("border","2px solid #0fad0f");
+                });
+
+                $("#senha").css("border","2px solid #f21d1d");
+            }
+
+        
+            //removendo os espaço vazio nos campos email e senha e verificando o tamanho, se a quantidade de caracteres for  maior que zero acessa a condição 
+            if($.trim(email).length>0 & $.trim(senha).length>0){
+                $.ajax({
+                    type: "POST",
+                    url: "http://www.hugomesquita.com.br/remote/check.php",
+                    data: {
+                        email: email,
+                        senha: senha
+                    },
+                    crossDomain: true,
+                    cache: false,
+                    beforeSend: function(){ $("button").html('Verificando...');},
+                }).done(function(data){
+                    // console.log(data);
+                    var dataArray = data.split(',');
+                    if(dataArray['0'] == "success"){
+                        //console.log(dataArray['1']);
+                        
+                        //armazenando valores no navegador
+                        window.localStorage.setItem('nome', dataArray['1']);
+                        window.localStorage.setItem('email', email);
+                        window.localStorage.setItem('senha', senha);
+                        window.localStorage.setItem('acesso', 'true');
+                        window.location.href = "login.html";                       
+                    }else if(dataArray['0'] == "failed"){
+                        alert("Usuário e Senha Incorreto!");
+                        $("button").html("Login");
+                    }
+
+                });
+
+            }
+
+
+        });
+
+
+        
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *" />
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com; style-src 'self' 'unsafe-inline'; media-src *" /> -->
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <title>Acesso Liberado</title>
+</head>
+<body>
+Olá <div id="nome"></div>
+    <a id="logout" class="button button-clear" href="#">Sair</a>
+
+
+    <div class="list">
+        <input type="hidden" id="id" value="" />
+        <div class="item">
+            <label>Nome</label>
+           <input type="text" id="nome_usuario" value="" />
+        </div>
+        <div class="item">
+            <label>E-mail</label>
+            <input type="text" id="email" value="" />
+        </div>
+        <div class="item">
+            <label>Senha</label>
+            <input type="text" id="senha" value="" />
+        </div>
+        <br>
+        <div class="item">
+            <input type="button" id="update" class="button button-block" value="Salvar" />
+            <input type="button" id="delete" class="button button-block" value="Deletar" />
+        </div>
+        
+    </div>
+
+     <a href="login.html">Inicio</a>
+
+    <script src="cordova.js"></script>
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/geturi.js"></script>
+    <script src="js/index.js"></script>
+    <script>
+        app.initialize();
+
+        //resgatando valores armazenado no navegaador
+        var acesso = window.localStorage.getItem('acesso');
+        if(acesso != 'false'){
+            var nome  = window.localStorage.getItem('nome');
+            var email = window.localStorage.getItem('email');
+            //console.log(email);   
+            $('#nome').html(nome);
+        }else{
+            window.location.href = "index.html";
+        }
+
+        //limpando valores do servidor
+        $("#logout").click(function(){
+		    //localStorage.login="false";
+		    window.localStorage.setItem('acesso','false');
+            window.localStorage.removeItem('email');
+            window.localStorage.removeItem('senha');
+            window.location.href = "index.html";
+		});
+
+
+    
+        //capturando id do usuário
+        var id      = decodeURI(getUrlVars()["id"]);
+        var nome    = decodeURI(getUrlVars()["nome"]);
+        var email   = decodeURI(getUrlVars()["email"]);
+        var senha   = decodeURI(getUrlVars()["senha"]);
+        $("#id").val(id);
+        $("#nome_usuario").val(nome);
+        $("#email").val(email);
+        $("#senha").val(senha);
+
+        //atualizando usuário
+        $("#update").click(function(){
+            var id      = $("#id").val();
+            var nome    = $("#nome_usuario").val(); 
+            var email   = $("#email").val();
+            var senha   = $("#senha").val();
+            $.ajax({
+                type: "POST",
+                url: "http://www.hugomesquita.com.br/remote/op_atualizar.php",
+                data: {
+                    id: id,
+                    nome: nome,
+                    email: email,
+                    senha: senha
+                },
+                crossDomain: true,
+                cache: false,               
+                beforeSend: function() {$("#update").val("Atualizando...");},
+            }).done(function(data){
+                if(data == "success"){
+                    alert("Usuário Atualizado");
+                    //$("#update").val("Salvar");
+                    window.location.href = "login.html";
+                }else if(data == "erro"){
+                    alert("Erro ao atualizar usuário");
+                }
+
+            });
+        });
+
+
+        //deletando usuário
+        $("#delete").click(function(){
+            var id = $("#id").val();
+            $.ajax({
+                type: "POST",
+                url: "http://www.hugomesquita.com.br/remote/op_deletar.php",
+                data: {
+                    id: id
+                },
+                crossDomain: true,
+                cache: false,
+                beforeSend: function() {$("#delete").val("Deletando...");},
+            }).done(function(data){
+                if(data == "success"){
+                    alert("Usuário deletado");
+                    window.location.href = "login.html";
+                }else if(data == "erro"){
+                    alert("Erro ao deletar usuário");
+                }
+            });
+        });
+	</script>	
+</body>
+</html>
